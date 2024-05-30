@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import random
 
-GOOGLE_API_KEY = 'AIzaSyAvw1cL99YvprqfSkMQFUgG9jTiBbxMrqI'
+GOOGLE_API_KEY = 'KEY'
 genai.configure(api_key=GOOGLE_API_KEY)
 
 relationship_arr = ['best friend', 'mom', 'dad', 'son', 'daughter', 'grandma', 'grandpa', 'spouse']
