@@ -133,6 +133,7 @@ def listen_print_loop(responses: object) -> str:
         The transcribed text.
     """
     num_chars_printed = 0
+    response_combined = ""
     for response in responses:
         if not response.results:
             continue
@@ -146,7 +147,7 @@ def listen_print_loop(responses: object) -> str:
 
         # Display the transcription of the top alternative.
         transcript = result.alternatives[0].transcript
-
+        
         # Display interim results, but with a carriage return at the end of the
         # line, so subsequent lines will overwrite them.
         #
@@ -159,25 +160,27 @@ def listen_print_loop(responses: object) -> str:
             sys.stdout.flush()
 
             num_chars_printed = len(transcript)
-
         else:
             print(transcript + overwrite_chars)
 
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r"\b(exit|quit)\b", transcript, re.I):
-                print("Exiting..")
+                #print("Exiting..")
                 break
 
             num_chars_printed = 0
+            response_combined = response_combined + transcript + "."
+    return response_combined
 
-    return transcript
 
-
-def main() -> None:
+def convert_to_text():
     """Transcribe speech from audio file."""
     # See http://g.co/cloud/speech/docs/languages
     # for a list of supported languages.
+
+    #print("Press Ctrl+C to exit..")
+    #print("Starting..")
     language_code = "en-US"  # a BCP-47 language tag
 
     client = speech.SpeechClient()
@@ -189,11 +192,11 @@ def main() -> None:
 
     streaming_config = speech.StreamingRecognitionConfig(
         config=config, 
-        interim_results=True,
-        single_utterance=True
+        interim_results=True
     )
 
     with MicrophoneStream(RATE, CHUNK) as stream:
+        #print("Say something..")
         audio_generator = stream.generator()
         requests = (
             speech.StreamingRecognizeRequest(audio_content=content)
@@ -203,8 +206,8 @@ def main() -> None:
         responses = client.streaming_recognize(streaming_config, requests)
 
         # Now, put the transcription responses to use.
-        listen_print_loop(responses)
-
+        response_combined = listen_print_loop(responses)
+    return response_combined
 
 if __name__ == "__main__":
-    main()
+    convert_to_text()
