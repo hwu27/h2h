@@ -28,15 +28,34 @@ no_story_prompt = "Do not talk as if narrating a story or as if you were in a bo
 emotional_prompt = "The text generated should be free of specific names, use standard characters, and should be a response to the user's input."
 prompt = setting_prompt + relationship_prompt + personality_prompt + setup_prompt + no_story_prompt + emotional_prompt 
 
-model = genai.GenerativeModel('gemini-1.5-pro-latest')
-chat = model.start_chat(history=[])
-response = chat.send_message(prompt)
-print(response.text)
-
-# WIP - need to figure out when to stop the response from the doctor
-# You need to say "exit" or "quit" to stop the conversation as of now
-for i in range(5):
-    doc_response = convert_to_text()
-    print(doc_response)
-    response = chat.send_message(doc_response)
+def speech_conversation():
+    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+    chat = model.start_chat(history=[])
+    response = chat.send_message(prompt)
     print(response.text)
+
+    # WIP - need to figure out when to stop the response from the doctor
+    # You need to say "exit" or "quit" to stop the conversation as of now
+    for i in range(5):
+        doc_response = convert_to_text()
+        print(doc_response)
+        response = chat.send_message(doc_response)
+        print(response.text)
+
+def text_conversation():
+    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+    chat = model.start_chat(history=[])
+    response = chat.send_message(prompt)
+    print(response.text)
+
+    # WIP - need to figure out when to stop the response from the doctor
+    # You need to say "exit" or "quit" to stop the conversation as of now
+    for i in range(5):
+        user_response = input("Doctor: ")
+        response = chat.send_message(user_response)
+        print(response.text)
+
+if __name__ == '__main__':
+    text_conversation()
+    #speech_conversation()
+
