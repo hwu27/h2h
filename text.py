@@ -21,14 +21,13 @@ comfort_style = random.choice(comfort_style_arr)
 condition = random.choice(condition_arr)
 
 setting_prompt = "You are in the ER of a hospital. "
-relationship_prompt = f"You are the {relationship} of a patient that has been hospitalized because of a {event}. The patient is in {condition} condition. You are NOT the doctor, you are speaking to the doctor."
+relationship_prompt = f"You are the {relationship} of a patient hospitalized because of a {event}. The patient is in {condition} condition. "
 personality_prompt = f"Because of this news, you are {personality}. The best way to comfort you would be through {comfort_style}. "
-setup_prompt = "In your speech, suggest this to the user through subtle conversation clues. "
-no_story_prompt = "Do not talk as if narrating a story or as if you were in a book. "
-direct_speech_prompt = "The response should be in direct speech, without any narrative elements or descriptions of actions. "
-name_prompt = "No specific names. If you need to refer to the patient, refer to them relative to your relationship with them. For example, 'my son' or 'my best friend'. " 
-character_prompt = "Use standard characters. No quotes, no dialogue tags, no actions. "
-prompt = setting_prompt + relationship_prompt + personality_prompt + setup_prompt + no_story_prompt + direct_speech_prompt + name_prompt + character_prompt
+no_story_prompt = "ONLY talk in first person without third person narration. "
+no_repetiton_prompt = "Do not repetitively rephrase messages from both sides."
+name_prompt = "No names. Refer to the patient relative to your relationship with them. For example, 'my son'. " 
+character_prompt = "Use standard characters. No quotes, no dialogue tags, no actions. You voice your concerns to the doctor:"
+prompt = setting_prompt + relationship_prompt + personality_prompt + no_story_prompt + no_repetiton_prompt +name_prompt + character_prompt
 
 def speech_conversation():
     model = genai.GenerativeModel('gemini-1.5-pro-latest')
@@ -54,7 +53,7 @@ def text_conversation():
     # You need to say "exit" or "quit" to stop the conversation as of now
     for i in range(5):
         user_response = input("Doctor: ")
-        response = chat.send_message(user_response)
+        response = chat.send_message("The doctor replies: " + user_response)
         print("Patient: " + response.text)
 
 if __name__ == '__main__':
