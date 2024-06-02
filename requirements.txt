@@ -1,0 +1,5 @@
+pygame 
+google-cloud-texttospeech
+google-cloud-speech
+pyaudio
+google-generativeai
