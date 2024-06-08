@@ -1,10 +1,12 @@
+// Using the page.jsx file to render the main page
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
-import Login from './pages/Login'
+import React from 'react';
+import Home from './home/page'
 export default function page() {
   return (
     <>
-      <Login />
+      {/* Main page */}
+      <Home />
     </>
   );
 }
