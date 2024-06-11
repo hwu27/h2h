@@ -1,5 +1,6 @@
 // Import Firebase modules
 import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from 'next/navigation'
@@ -15,24 +16,34 @@ const config = {
     measurementId: 'G-LETXYNHPDE'
 };
 
-const app = initializeApp(config);
-const auth = getAuth(app);
+export const app = initializeApp(config);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
-{/* WIP handle errors and displays*/}
+{/* WIP - Implement more robust account error alerts */}
 export function GoogleSignInBtn() {
-    const signInWithGoogle = () => {
+
+    const router = useRouter();
+    
+    const signInWithGoogle = async () => {
       const provider = new GoogleAuthProvider();
-      signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-      });
+      await signInWithPopup(auth, provider)
+        .then(async (result) => {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          const user = result.user;
+          
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (!userDocSnap.exists()) {
+            router.push(`/welcome/${user.uid}`);
+          } else {
+            router.push(`/dashboard/${user.uid}`);
+          }
+        }).catch((error) => {
+          console.log(error.message)
+        });
     };
     return (<button className='flex items-center mb-12 font-bold hover:text-gray-200' onClick={signInWithGoogle}><FcGoogle className='mr-2'/>Sign in with Google</button>);
   }
@@ -44,25 +55,32 @@ export function SignInBtn({ email, password }) {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       var user = userCredential.user;
-      router.push(`/dashboard/${user.uid}`);
+
+      router.push(`/welcome/${user.uid}`);
     })
     .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
+      console.log(error.code);
+      if (error.code === 'auth/invalid-credential') {
+        return alert('Invalid credentials');
+      }
     });
   }
   return (<button className='flex items-center mb-12 text-xl font-bold hover:text-gray-200' onClick={signInWithEmail}>Sign in</button>)
 }
 
 export function SignUpBtn({ email, password }) {
+  const router = useRouter();
+
   const signUpWithEmail = () => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       var user = userCredential.user;
+      router.push(`/welcome/${user.uid}`);
     })
     .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
+      if (error.code === 'auth/email-already-in-use') {
+        return alert('Email already in use');
+      }
     });
   }
   return (<button className='flex items-center mb-12 text-xl font-bold hover:text-gray-200' onClick={signUpWithEmail}>Sign up</button>)
@@ -78,6 +96,6 @@ export function SignOutBtn() {
     };
 
     return auth.currentUser &&  (
-        <button onClick = {signOutUser}>Sign Out</button>
+        <a className='font-bold hover:text-gray-200 cursor-pointer whitespace-nowrap mx-2' onClick = {signOutUser}>Sign Out</a>
     )
 }

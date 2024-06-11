@@ -1,23 +1,33 @@
 // Login.jsx
 'use client'
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleSignInBtn, SignInBtn, SignUpBtn } from '@/app/firebase';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
+import { useSearchParams } from 'next/navigation';
 
 export default function Login() {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignIn, setIsSignIn] = useState(true);
 
+  const searchParams = useSearchParams()
+  const search = searchParams.get('mode')
+  useEffect(() => {
+    if (search === 'signup') {
+      setIsSignIn(false);
+    } else {
+      setIsSignIn(true);
+    }
+  } ,[search]);
+  
   const changeSignIn = () => {
     setIsSignIn(!isSignIn);
   }
 
-  return (
-  <>
-    <Header />
-    {isSignIn && <section id='signin-section' className='flex bg-blue-100 h-screen-full'>
+  const SignInSection = () => (
+    <section id='signin-section' className='flex bg-blue-100 h-screen-90'>
       <div className='flex flex-col border-2 h-5/6 w-11/12 lg:w-4/12 mx-auto my-auto p-12 justify-center items-center rounded-3xl shadow-xl bg-white'>
         <div className='flex flex-col justify-center items-center mb-8'>
           <p className='font-bold'>Username</p>
@@ -34,9 +44,10 @@ export default function Login() {
           <a className='hover:text-gray-200 cursor-pointer' onClick={changeSignIn}>Don't have an account?</a>
         </div>
       </div>
-    </section>}
-    
-    {!isSignIn && <section id='signup-section' className='flex bg-blue-100 h-screen-full'>
+    </section>
+  )
+  const SignUpSection = () => (
+    <section id='signup-section' className='flex bg-blue-100 h-screen-90'>
       <div className='flex flex-col border-2 h-5/6 w-11/12 lg:w-4/12 mx-auto my-auto p-12 justify-center items-center rounded-3xl shadow-xl bg-white'>
         <div className='flex flex-col justify-center items-center mb-8'>
           <p className='font-bold'>Username</p>
@@ -52,7 +63,14 @@ export default function Login() {
           <a className='hover:text-gray-200 cursor-pointer' onClick={changeSignIn}>Already have an account?</a>
         </div>
       </div>
-    </section>}
+    </section>
+  )  
+
+  return (
+  <>
+    <Header />
+    {isSignIn ? <SignInSection /> : <SignUpSection />}
+    
     <Footer />
   </>
   )
